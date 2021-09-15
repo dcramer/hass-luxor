@@ -1,1 +1,2 @@
 pytest-homeassistant-custom-component==0.4.0
+luxor-openapi-asyncio==0.1.0

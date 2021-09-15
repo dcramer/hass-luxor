@@ -1,0 +1,16 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Luxor",
+                "description": "Integration with FXLuminaire's Luxor lighting system.",
+                "data": {
+                    "host": "Host"
+                }
+            }
+        },
+        "error": {
+            "host": "Unable to connect to controller."
+        }
+    }
+}

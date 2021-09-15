@@ -1,1 +1,2 @@
 homeassistant
+luxor-openapi-asyncio==0.1.0
