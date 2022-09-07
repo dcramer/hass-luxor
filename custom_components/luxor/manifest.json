@@ -1,14 +1,14 @@
 {
-  "domain": "luxor",
-  "name": "FXLuminaire Luxor",
-  "description": "Integration with the Luxor lighting system.",
+  "codeowners": ["@dcramer"],
+  "config_flow": true,
+  "dependencies": [],
   "documentation": "https://github.com/dcramer/hass-luxor",
+  "domain": "luxor",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/dcramer/hass-luxor/issues",
-  "version": "0.0.0",
-  "config_flow": true,
-  "codeowners": ["@dcramer"],
+  "name": "FXLuminaire Luxor",
   "requirements": [
     "luxor-openapi-asyncio==0.1.0"
-  ]
+  ],
+  "version": "0.0.0"
 }
