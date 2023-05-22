@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     controller = LuxorController(api_client=api_client, name=api_response.controller)
     hass.data[DOMAIN][entry.entry_id] = controller
 
-    device_registry = await dr.async_get_registry(hass)
+    device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         identifiers={(DOMAIN, controller.name)},
         config_entry_id=entry.entry_id,
