@@ -21,12 +21,11 @@ from .const import (
     DOMAIN,
     SCENE,
     REQUEST_REFRESH_DELAY,
+    CONF_THEME_INTERVAL,
+    DEFAULT_THEME_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-SCAN_INTERVAL = timedelta(seconds=600)
-
 
 async def async_setup_entry(hass, entry, async_add_entities):
     controller = hass.data[DOMAIN][entry.entry_id]
@@ -36,7 +35,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         _LOGGER,
         name="{}_{}".format(DOMAIN, SCENE),
         update_method=partial(async_fetch_scenes, controller),
-        update_interval=SCAN_INTERVAL,
+        update_interval=timedelta(seconds=entry.data.get(CONF_THEME_INTERVAL, DEFAULT_THEME_INTERVAL)),
         request_refresh_debouncer=Debouncer(
             hass, _LOGGER, cooldown=REQUEST_REFRESH_DELAY, immediate=True
         ),

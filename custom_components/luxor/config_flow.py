@@ -11,8 +11,12 @@ from pprint import pprint
 
 from .const import (
     CONF_HOST,
+    CONF_GROUP_INTERVAL,
+    CONF_THEME_INTERVAL,
     DOMAIN,
     PLATFORMS,
+    DEFAULT_GROUP_INTERVAL,
+    DEFAULT_THEME_INTERVAL,
 )
 
 
@@ -42,6 +46,8 @@ class LuxorFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         user_input = {}
         # Provide defaults for form
         user_input[CONF_HOST] = ""
+        user_input[CONF_GROUP_INTERVAL] = DEFAULT_GROUP_INTERVAL
+        user_input[CONF_THEME_INTERVAL] = DEFAULT_THEME_INTERVAL
 
         return await self._show_config_form(user_input)
 
@@ -52,6 +58,8 @@ class LuxorFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_HOST, default=user_input[CONF_HOST]): str,
+                    vol.Required(CONF_GROUP_INTERVAL, default=user_input[CONF_GROUP_INTERVAL]): vol.All(vol.Coerce(int), vol.Range(min=5)),
+                    vol.Required(CONF_THEME_INTERVAL, default=user_input[CONF_THEME_INTERVAL]): vol.All(vol.Coerce(int), vol.Range(min=60))
                 }
             ),
             errors=self._errors,

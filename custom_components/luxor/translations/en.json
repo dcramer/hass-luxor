@@ -5,7 +5,9 @@
                 "title": "Luxor",
                 "description": "Integration with FXLuminaire's Luxor lighting system.",
                 "data": {
-                    "host": "Host"
+                    "host": "Host",
+                    "group_interval": "Light Update Interval (sec)",
+                    "theme_interval": "Scene Update Interval (sec)"
                 }
             }
         },
