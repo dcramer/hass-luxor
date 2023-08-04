@@ -7,6 +7,7 @@ from homeassistant.core import callback
 from homeassistant.components.scene import Scene
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.debounce import Debouncer
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -98,7 +99,7 @@ class LuxorScene(Scene):
         self.theme_index = theme_index
 
         self._attr_name = name
-
+        self._attr_unique_id = "{}{}".format(name, theme_index)
     async def async_activate(self, **kwargs):  # pylint: disable=unused-argument
         api_instance = themes_api.ThemesApi(self.controller.api)
         # TODO: handle non-0 status codes
@@ -108,8 +109,7 @@ class LuxorScene(Scene):
 
     @property
     def device_info(self):
-        return {
-            "identifiers": ("{}_{}".format(DOMAIN, SCENE), self.theme_index),
-            "name": self.name,
-            "via_device": (DOMAIN, self.controller.name),
-        }
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.controller.name)},
+            name=self.controller.name,
+        )

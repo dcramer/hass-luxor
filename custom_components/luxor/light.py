@@ -10,6 +10,7 @@ from homeassistant.components.light import (
 )
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.debounce import Debouncer
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -112,7 +113,7 @@ class LuxorLight(CoordinatorEntity, LightEntity):
         self.group_id = group_id
         self.intensity = intensity
         self.color = color
-
+        self._attr_unique_id = "{}{}".format(name, group_id)
         self._attr_name = name
 
     async def async_turn_on(
@@ -150,8 +151,9 @@ class LuxorLight(CoordinatorEntity, LightEntity):
 
     @property
     def device_info(self):
-        return {
-            "identifiers": ("{}_{}".format(DOMAIN, LIGHT), self.group_id),
-            "name": self.name,
-            "via_device": (DOMAIN, self.controller.name),
-        }
+        return DeviceInfo(
+            identifiers={("{}_{}".format(DOMAIN, LIGHT), self.group_id)},
+            manufacturer="FXLuminaire",
+            name=self.name,
+            via_device=(DOMAIN, self.controller.name),
+        )
