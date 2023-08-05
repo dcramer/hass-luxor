@@ -24,12 +24,11 @@ from .const import (
     DOMAIN,
     LIGHT,
     REQUEST_REFRESH_DELAY,
+    CONF_GROUP_INTERVAL,
+    DEFAULT_GROUP_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-SCAN_INTERVAL = timedelta(seconds=60)
-
 
 async def async_setup_entry(hass, entry, async_add_entities):
     controller = hass.data[DOMAIN][entry.entry_id]
@@ -39,7 +38,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         _LOGGER,
         name="{}_{}".format(DOMAIN, LIGHT),
         update_method=partial(async_fetch_lights, controller),
-        update_interval=SCAN_INTERVAL,
+        update_interval=timedelta(seconds=entry.data.get(CONF_GROUP_INTERVAL, DEFAULT_GROUP_INTERVAL)),
         request_refresh_debouncer=Debouncer(
             hass, _LOGGER, cooldown=REQUEST_REFRESH_DELAY, immediate=True
         ),
@@ -77,9 +76,7 @@ def async_update_lights(
     for grp_id, data in controller.lights.items():
         if grp_id in current_entities:
             continue
-        light = current_entities[grp_id] = create_light(
-            data.grp, data.name, data.inten, data.colr
-        )
+        light = current_entities[grp_id] = create_light(data.grp)
         new_items.append(light)
 
     hass.async_create_task(async_remove_entities(controller, current_entities))
@@ -107,14 +104,11 @@ def brightness_to_intensity(brightness: int):
 class LuxorLight(CoordinatorEntity, LightEntity):
     supported_color_modes = {COLOR_MODE_BRIGHTNESS}
 
-    def __init__(self, coordinator, controller, group_id, name, intensity, color):
+    def __init__(self, coordinator, controller, group_id):
         super().__init__(coordinator)
         self.controller = controller
         self.group_id = group_id
-        self.intensity = intensity
-        self.color = color
-        self._attr_unique_id = "{}{}".format(name, group_id)
-        self._attr_name = name
+        self._attr_unique_id = "LUXOR_LIGHT_{}".format(group_id)
 
     async def async_turn_on(
         self, brightness=255, **kwargs
@@ -126,8 +120,6 @@ class LuxorLight(CoordinatorEntity, LightEntity):
             luxor_openapi_asyncio.IlluminateGroupRequest(self.group_id, intensity)
         )
 
-        if api_response.status == 0:
-            self.intensity = intensity
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):  # pylint: disable=unused-argument
@@ -136,18 +128,19 @@ class LuxorLight(CoordinatorEntity, LightEntity):
             luxor_openapi_asyncio.IlluminateGroupRequest(self.group_id, 0)
         )
 
-        if api_response.status == 0:
-            self.intensity = 0
-
         await self.coordinator.async_request_refresh()
 
     @property
+    def name(self):
+        return self.controller.lights[self.group_id].name
+
+    @property
     def brightness(self):
-        return intensity_to_brightness(self.intensity)
+        return intensity_to_brightness(self.controller.lights[self.group_id].inten)
 
     @property
     def is_on(self):
-        return self.intensity > 0
+        return self.controller.lights[self.group_id].inten > 0
 
     @property
     def device_info(self):
