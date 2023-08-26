@@ -27,9 +27,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data.setdefault(DOMAIN, {})
 
     host = entry.data.get(CONF_HOST)
-    api_client = luxor_openapi_asyncio.ApiClient(
-        luxor_openapi_asyncio.Configuration(host="http://{}".format(host))
-    )
+    api_client_config = luxor_openapi_asyncio.Configuration(host="http://{}".format(host))
+    api_client_config.connection_pool_maxsize = 1
+    api_client = luxor_openapi_asyncio.ApiClient(api_client_config)
 
     api_instance = controller_api.ControllerApi(api_client)
 
