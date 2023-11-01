@@ -5,8 +5,8 @@ from functools import partial
 
 from homeassistant.core import callback
 from homeassistant.components.light import (
+    ColorMode,
     LightEntity,
-    COLOR_MODE_BRIGHTNESS,
 )
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.debounce import Debouncer
@@ -102,13 +102,16 @@ def brightness_to_intensity(brightness: int):
 
 
 class LuxorLight(CoordinatorEntity, LightEntity):
-    supported_color_modes = {COLOR_MODE_BRIGHTNESS}
 
     def __init__(self, coordinator, controller, group_id):
         super().__init__(coordinator)
         self.controller = controller
         self.group_id = group_id
         self._attr_unique_id = "LUXOR_LIGHT_{}".format(group_id)
+        color_mode = ColorMode.BRIGHTNESS
+        self._attr_color_mode = color_mode
+        self._attr_supported_color_modes = {color_mode}
+        self._attr_effect = None
 
     async def async_turn_on(
         self, brightness=255, **kwargs
