@@ -43,12 +43,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data[DOMAIN][entry.entry_id] = controller
 
     device_registry = dr.async_get(hass)
-    device_registry.async_get_or_create(
+    controller_device = device_registry.async_get_or_create(
         identifiers={(DOMAIN, controller.name)},
         config_entry_id=entry.entry_id,
         manufacturer="FXLuminaire",
         name=controller.name,
     )
+    controller.device_id = controller_device.id
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.add_update_listener(async_reload_entry)
