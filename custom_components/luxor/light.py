@@ -151,5 +151,5 @@ class LuxorLight(CoordinatorEntity, LightEntity):
             identifiers={("{}_{}".format(DOMAIN, LIGHT), self.group_id)},
             manufacturer="FXLuminaire",
             name=self.name,
-            via_device=(DOMAIN, self.controller.name),
+            via_device_id=self.controller.device_id,
         )

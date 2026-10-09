@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 import luxor_openapi_asyncio
 from luxor_openapi_asyncio.api import controller_api
 
+from .api import LuxorApiClient
 from .const import CONF_HOST, DOMAIN, PLATFORMS
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -30,7 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     host = entry.data.get(CONF_HOST)
     api_client_config = luxor_openapi_asyncio.Configuration(host="http://{}".format(host))
     api_client_config.connection_pool_maxsize = 1
-    api_client = luxor_openapi_asyncio.ApiClient(api_client_config)
+    api_client = LuxorApiClient(api_client_config)
 
     api_instance = controller_api.ControllerApi(api_client)
 
@@ -43,12 +44,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data[DOMAIN][entry.entry_id] = controller
 
     device_registry = dr.async_get(hass)
-    device_registry.async_get_or_create(
+    device = device_registry.async_get_or_create(
         identifiers={(DOMAIN, controller.name)},
         config_entry_id=entry.entry_id,
         manufacturer="FXLuminaire",
         name=controller.name,
     )
+    controller.device_id = device.id
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.add_update_listener(async_reload_entry)
@@ -64,6 +66,7 @@ class LuxorController(object):
         """Initialize."""
         self.api = api_client
         self.name = name
+        self.device_id = None
 
         self.lights = {}
         self.scenes = {}
