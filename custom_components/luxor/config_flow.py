@@ -1,7 +1,7 @@
 """Adds config flow for Luxor."""
 from homeassistant import config_entries
 from homeassistant.core import callback
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import voluptuous as vol
 
 import luxor_openapi_asyncio
@@ -9,6 +9,7 @@ from luxor_openapi_asyncio.api import controller_api
 
 from pprint import pprint
 
+from .api import create_api_client
 from .const import (
     CONF_HOST,
     CONF_GROUP_INTERVAL,
@@ -68,9 +69,7 @@ class LuxorFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def _get_controller_details(self, host):
         """Return true if credentials is valid."""
         try:
-            api_client = luxor_openapi_asyncio.ApiClient(
-                luxor_openapi_asyncio.Configuration(host="http://{}".format(host))
-            )
+            api_client = create_api_client(host, async_get_clientsession(self.hass))
             api_instance = controller_api.ControllerApi(api_client)
 
             try:

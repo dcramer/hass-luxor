@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 import luxor_openapi_asyncio
 from luxor_openapi_asyncio.api import controller_api
 
+from .api import create_api_client
 from .const import CONF_HOST, DOMAIN, PLATFORMS
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -28,9 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data.setdefault(DOMAIN, {})
 
     host = entry.data.get(CONF_HOST)
-    api_client_config = luxor_openapi_asyncio.Configuration(host="http://{}".format(host))
-    api_client_config.connection_pool_maxsize = 1
-    api_client = luxor_openapi_asyncio.ApiClient(api_client_config)
+    api_client = create_api_client(host, async_get_clientsession(hass))
 
     api_instance = controller_api.ControllerApi(api_client)
 
